@@ -6,6 +6,7 @@
 //POSIX
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 
 #define MAINWND_STATIC_WIDTH 200
 #define MAINWND_CB_WIDTH MAINWND_STATIC_WIDTH
@@ -50,18 +51,26 @@ LRESULT CALLBACK MainWndProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
 					size_t addr_len = ComboBox_GetTextLength(hComboBox);
 					char* addr = malloc(addr_len+1);ComboBox_GetText(hComboBox,addr,addr_len+1);
 
-					ssize_t start_index = -1;
+					bool addr_found = false;
+					ssize_t start_index = ComboBox_FindString(hComboBox,-1,addr);
 
-					while((start_index = ComboBox_FindString(hComboBox,start_index,addr)) != CB_ERR)
+					if(start_index != CB_ERR)
 					{
 						size_t cur_index = start_index;
-						if(ComboBox_GetLBTextLen(hComboBox,cur_index) == addr_len)
+						do
 						{
-							break;
+							if(ComboBox_GetLBTextLen(hComboBox,cur_index) == addr_len)
+							{
+								addr_found = true;
+								break;
+							}
+							cur_index = ComboBox_FindString(hComboBox,cur_index,addr);
 						}
+						while(cur_index != start_index);
 					}
 
-					if(start_index == CB_ERR)
+
+					if(!addr_found)
 					{
 						ComboBox_AddString(hComboBox,addr);
 
@@ -81,8 +90,6 @@ LRESULT CALLBACK MainWndProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
 					}
 
 					free(addr);
-
-					//
 				}
 			}
 			break;
