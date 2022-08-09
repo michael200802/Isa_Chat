@@ -8,11 +8,177 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
+#define NAME_MAXLEN 20
+typedef struct
+{
+	char str[NAME_MAXLEN+1];
+	unsigned char len;
+}
+Name_t;
+
+#define LINE_HEIGHT 20
+
+#define GETNAMEWND_EDIT_WIDTH 100
+#define GETNAMEWND_BUTTON_WIDTH 50
+#define GETNAMEWND_STATIC_WIDTH (GETNAMEWND_EDIT_WIDTH+GETNAMEWND_BUTTON_WIDTH+20)
+
+#define GETNAMEWND_STATIC_HEIGHT LINE_HEIGHT
+#define GETNAMEWND_EDIT_HEIGHT LINE_HEIGHT
+#define GETNAMEWND_BUTTON_HEIGHT LINE_HEIGHT
+
+#define GETNAMEWND_STATIC_X 0
+#define GETNAMEWND_EDIT_X 10
+#define GETNAMEWND_BUTTON_X (GETNAMEWND_EDIT_X+GETNAMEWND_EDIT_WIDTH)
+
+#define GETNAMEWND_STATIC_Y 0
+#define GETNAMEWND_EDIT_Y LINE_HEIGHT
+#define GETNAMEWND_BUTTON_Y GETNAMEWND_EDIT_Y
+
+#define GETNAMEWND_STATIC_ID ((HMENU)1)
+#define GETNAMEWND_EDIT_ID ((HMENU)2)
+#define GETNAMEWND_BUTTON_ID ((HMENU)3)
+
+#define GETNAMEWND_X 100
+#define GETNAMEWND_Y 200
+#define GETNAMEWND_WIDTH GETNAMEWND_STATIC_WIDTH
+#define GETNAMEWND_HEIGHT (LINE_HEIGHT*3)
+
+LRESULT CALLBACK GetNameWndProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
+{
+	static HWND hStatic;
+	static HWND hEdit;
+	static HWND hButton;
+	static HINSTANCE hInstance;
+	static Name_t*name;
+	switch(Msg)
+	{
+		case WM_COMMAND:
+			if(LOWORD(wParam) == GETNAMEWND_BUTTON_ID)
+			{
+				if(Edit_GetTextLength(hEdit) < 5)
+				{
+					MessageBox(hWnd,"Cadena cuya longitud es menor a 5 caracteres.","ERROR",MB_OK|MB_DEFBUTTON1|MB_SYSTEMMODAL|MB_ICONERROR);
+				}
+				else
+				{
+					Edit_GetText(hEdit,name->str,NAME_MAXLEN+1);
+					name->len = Edit_GetTextLength(hEdit);
+					PostQuitMessage(0);
+				}
+			}
+			break;
+		case WM_CREATE:
+			hInstance = ((CREATESTRUCT*)lParam)->hInstance;
+			name = ((CREATESTRUCT*)lParam)->lpCreateParams;
+
+			hStatic = CreateWindowEx(
+					0,
+					WC_STATIC,
+					"Ingrese el nombre: ",
+					WS_VISIBLE|WS_CHILD|SS_CENTER,
+					GETNAMEWND_STATIC_X,
+					GETNAMEWND_STATIC_Y,
+					GETNAMEWND_STATIC_WIDTH,
+					GETNAMEWND_STATIC_HEIGHT,
+					hWnd,
+					GETNAMEWND_STATIC_ID,
+					hInstance,
+					NULL
+				);
+
+			hEdit = CreateWindowEx(
+					0,
+					WC_EDIT,
+					"",
+					WS_VISIBLE|WS_CHILD|WS_BORDER|ES_LEFT|ES_LOWERCASE,
+					GETNAMEWND_EDIT_X,
+					GETNAMEWND_EDIT_Y,
+					GETNAMEWND_EDIT_WIDTH,
+					GETNAMEWND_EDIT_HEIGHT,
+					hWnd,
+					GETNAMEWND_EDIT_ID,
+					hInstance,
+					NULL
+				);
+
+			hButton = CreateWindowEx(
+						0,
+						WC_BUTTON,
+						"Seguir",
+						WS_VISIBLE|WS_CHILD|BS_CENTER|BS_PUSHBUTTON,
+						GETNAMEWND_BUTTON_X,
+						GETNAMEWND_BUTTON_Y,
+						GETNAMEWND_BUTTON_WIDTH,
+						GETNAMEWND_BUTTON_HEIGHT,
+						hWnd,
+						GETNAMEWND_BUTTON_ID,
+						hInstance,
+						NULL
+					);
+			break;
+		case WM_DESTROY:
+			PostQuitMessage(0);
+			break;
+		default:
+			return DefWindowProc(hWnd,Msg,wParam,lParam);
+	}
+	return 0;
+}
+
+Name_t GetName(HINSTANCE hCurInstance)
+{
+	Name_t name = {};
+
+	static bool is_registered = false;
+	if(is_registered == false)
+	{
+		WNDCLASSEX WndClass = {
+				.cbSize = sizeof(WNDCLASSEX),
+				.style = CS_HREDRAW|CS_VREDRAW,
+				.lpfnWndProc = GetNameWndProc,
+				.cbClsExtra = 0,
+				.cbWndExtra = 0,
+				.hInstance = hCurInstance,
+				.hIcon = LoadIcon(NULL,IDI_APPLICATION),
+				.hCursor = LoadCursor(NULL,IDC_ARROW),
+				.hbrBackground = GetSysColorBrush(COLOR_WINDOW),
+				.lpszMenuName = NULL,
+				.lpszClassName = "GETNAMEWND",
+				.hIconSm = LoadIcon(NULL,IDI_APPLICATION)
+			};
+		RegisterClassEx(&WndClass);
+	}
+	HWND hWnd;
+	MSG Msg;
+
+
+	hWnd = CreateWindowEx(
+				0,
+				"GETNAMEWND",
+				"",
+				WS_VISIBLE|WS_POPUPWINDOW|WS_BORDER,
+				GETNAMEWND_X,
+				GETNAMEWND_Y,
+				GETNAMEWND_WIDTH,
+				GETNAMEWND_HEIGHT,
+				NULL,
+				NULL,
+				hCurInstance,
+				&name
+			);
+
+	while(GetMessage(&Msg,NULL,0,0) == TRUE)
+	{
+		TranslateMessage(&Msg);
+		DispatchMessage(&Msg);
+	}
+
+	return name;
+}
+
 #define MAINWND_STATIC_WIDTH 200
 #define MAINWND_CB_WIDTH MAINWND_STATIC_WIDTH
 #define MAINWND_BUTTON_WIDTH 80
-
-#define LINE_HEIGHT 20
 
 #define MAINWND_STATIC_HEIGHT LINE_HEIGHT
 #define MAINWND_CB_HEIGHT (LINE_HEIGHT*4)
@@ -88,6 +254,11 @@ LRESULT CALLBACK MainWndProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
 
 						fclose(stream);
 					}
+
+					ShowWindow(hWnd,SW_HIDE);
+					Name_t name = GetName(hInstance);
+					puts(name.str);
+					ShowWindow(hWnd,SW_RESTORE);
 
 					free(addr);
 				}
