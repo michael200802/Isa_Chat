@@ -116,9 +116,6 @@ LRESULT CALLBACK GetNameWndProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lPara
 						NULL
 					);
 			break;
-		case WM_DESTROY:
-			PostQuitMessage(0);
-			break;
 		default:
 			return DefWindowProc(hWnd,Msg,wParam,lParam);
 	}
@@ -172,6 +169,8 @@ Name_t GetName(HINSTANCE hCurInstance)
 		TranslateMessage(&Msg);
 		DispatchMessage(&Msg);
 	}
+
+	DestroyWindow(hWnd);
 
 	return name;
 }
