@@ -200,11 +200,23 @@ Name_t GetName(HINSTANCE hCurInstance)
 
 #define CACHE_NAME "addrs_cache"
 
+//Progress bar that is only shown after the user has given the username and the server address.
+#define MAINWND_PB_WIDTH ((MAINWND_BUTTON_X+MAINWND_BUTTON_WIDTH)-MAINWND_CB_X)
+#define MAINWND_PB_HEIGHT (LINE_HEIGHT+10)
+#define MAINWND_PB_X MAINWND_CB_X
+#define MAINWND_PB_Y MAINWND_CB_Y
+#define MAINWND_PB_ID ((HMENU)4)
+//Steps values
+#define STEP1_CREATESOCK 1
+#define STEP2_CONNECT 5
+#define STEP3_LOGGEDIN 6
+
 LRESULT CALLBACK MainWndProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
 {
 	static HWND hStatic;
 	static HWND hComboBox;
 	static HWND hButton;
+	static HWND hPB;//progress bar
 	static HINSTANCE hInstance;
 
 	switch(Msg)
@@ -254,10 +266,43 @@ LRESULT CALLBACK MainWndProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
 						fclose(stream);
 					}
 
-					ShowWindow(hWnd,SW_HIDE);
+					//Use the GetNameWnd to get the username
+					ShowWindow(hWnd,SW_HIDE);//This shall hide the main wnd so the GetNameWnd is shown
 					Name_t name = GetName(hInstance);
-					puts(name.str);
 					ShowWindow(hWnd,SW_RESTORE);
+
+					//Connect to the server
+					ShowWindow(hButton,SW_HIDE);//Hide and then restore the ctrl so the progress bar is shown
+					ShowWindow(hComboBox,SW_HIDE);
+					{
+						ShowWindow(hPB,SW_NORMAL);
+
+						//Create socket
+						Static_SetText(hStatic,"Creando socket.");
+						Sleep(2000);
+						
+						SendMessage(hPB,PBM_DELTAPOS,STEP1_CREATESOCK,0);
+
+						//Connect
+						Static_SetText(hStatic,"Connectando.");
+						Sleep(2000);
+						
+						SendMessage(hPB,PBM_DELTAPOS,STEP2_CONNECT,0);
+
+						//Log in
+						Static_SetText(hStatic,"Ingresando.");
+						Sleep(2000);
+						
+						SendMessage(hPB,PBM_DELTAPOS,STEP3_LOGGEDIN,0);
+
+						Sleep(2000);
+
+						ShowWindow(hPB,SW_HIDE);
+						SendMessage(hPB,PBM_SETPOS,0,0);
+					}
+					Static_SetText(hStatic,"Ingrese el servidor:");//Restore the original text of the static
+					ShowWindow(hButton,SW_RESTORE);
+					ShowWindow(hComboBox,SW_RESTORE);
 
 					free(addr);
 				}
@@ -301,6 +346,22 @@ LRESULT CALLBACK MainWndProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
 					hInstance,
 					NULL
 				);
+
+			hPB = CreateWindowEx(
+					0,
+					PROGRESS_CLASS,
+					"",
+					WS_CHILD|WS_BORDER,
+					MAINWND_PB_X,
+					MAINWND_PB_Y,
+					MAINWND_PB_WIDTH,
+					MAINWND_PB_HEIGHT,
+					hWnd,
+					MAINWND_PB_ID,
+					hInstance,
+					NULL
+				);
+			SendMessage(hPB,PBM_SETRANGE,0,MAKELPARAM(0,STEP1_CREATESOCK+STEP2_CONNECT+STEP3_LOGGEDIN));
 
 			{
 				FILE* stream = fopen(CACHE_NAME,"r");
