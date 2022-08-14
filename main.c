@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdint.h>
 
 #define NAME_MAXLEN 20
 typedef struct
@@ -125,26 +126,6 @@ LRESULT CALLBACK GetNameWndProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lPara
 Name_t GetName(HINSTANCE hCurInstance)
 {
 	Name_t name = {};
-
-	static bool is_registered = false;
-	if(is_registered == false)
-	{
-		WNDCLASSEX WndClass = {
-				.cbSize = sizeof(WNDCLASSEX),
-				.style = CS_HREDRAW|CS_VREDRAW,
-				.lpfnWndProc = GetNameWndProc,
-				.cbClsExtra = 0,
-				.cbWndExtra = 0,
-				.hInstance = hCurInstance,
-				.hIcon = LoadIcon(NULL,IDI_APPLICATION),
-				.hCursor = LoadCursor(NULL,IDC_ARROW),
-				.hbrBackground = GetSysColorBrush(COLOR_WINDOW),
-				.lpszMenuName = NULL,
-				.lpszClassName = "GETNAMEWND",
-				.hIconSm = LoadIcon(NULL,IDI_APPLICATION)
-			};
-		RegisterClassEx(&WndClass);
-	}
 	HWND hWnd;
 	MSG Msg;
 
@@ -173,6 +154,192 @@ Name_t GetName(HINSTANCE hCurInstance)
 	DestroyWindow(hWnd);
 
 	return name;
+}
+
+#define CHATWND_X CW_USEDEFAULT
+#define CHATWND_Y CW_USEDEFAULT
+#define CHATWND_WIDTH CW_USEDEFAULT
+#define CHATWND_HEIGHT CW_USEDEFAULT
+
+RECT GetWndRect(HWND hWnd)
+{
+	RECT Rect;
+	GetWindowRect(hWnd,&Rect);
+	return Rect;
+}
+
+/*
+LONG GetWndWidth(HWND hWnd)
+{
+	RECT rect = GetWndRect(hWnd);
+	return rect.right-rect.left;
+}
+*/
+
+LONG GetWndHeight(HWND hWnd)
+{
+	RECT rect = GetWndRect(hWnd);
+	return rect.bottom-rect.top;
+}
+
+#define CHATWND_STATIC_WIDTH 530
+#define CHATWND_LB_WIDTH CHATWND_STATIC_WIDTH
+#define CHATWND_EDIT_WRMSG_WIDTH 610
+#define CHATWND_BUTTON_WIDTH 80
+#define CHATWND_EDIT_RDONLY_WIDTH (CHATWND_EDIT_WRMSG_WIDTH+10+CHATWND_BUTTON_WIDTH)
+
+#define CHATWND_EDIT_WRMSG_HEIGHT (LINE_HEIGHT*3)
+#define CHATWND_EDIT_RDONLY_HEIGHT (GetWndHeight(hWnd)-CHATWND_EDIT_WRMSG_HEIGHT-20)
+#define CHATWND_BUTTON_HEIGHT CHATWND_EDIT_WRMSG_HEIGHT
+#define CHATWND_STATIC_HEIGHT LINE_HEIGHT
+#define CHATWND_LB_HEIGHT (CHATWND_EDIT_RDONLY_HEIGHT+CHATWND_EDIT_WRMSG_HEIGHT-CHATWND_STATIC_HEIGHT)
+
+#define CHATWND_EDIT_RDONLY_X 20
+#define CHATWND_EDIT_WRMSG_X 20
+#define CHATWND_BUTTON_X (CHATWND_EDIT_WRMSG_X+CHATWND_EDIT_WRMSG_WIDTH+10)
+#define CHATWND_STATIC_X (CHATWND_EDIT_RDONLY_X+CHATWND_EDIT_RDONLY_WIDTH+30)
+#define CHATWND_LB_X CHATWND_STATIC_X
+
+#define CHATWND_EDIT_RDONLY_Y 0
+#define CHATWND_EDIT_WRMSG_Y (CHATWND_EDIT_RDONLY_Y+CHATWND_EDIT_RDONLY_HEIGHT)
+#define CHATWND_BUTTON_Y CHATWND_EDIT_WRMSG_Y
+#define CHATWND_STATIC_Y  CHATWND_EDIT_RDONLY_Y
+#define CHATWND_LB_Y (CHATWND_STATIC_Y+CHATWND_STATIC_HEIGHT)
+
+#define CHATWND_STATIC_ID ((HMENU)1)
+#define CHATWND_LB_ID ((HMENU)2)
+#define CHATWND_EDIT_RDONLY_ID ((HMENU)3)
+#define CHATWND_EDIT_WRMSG_ID ((HMENU)4)
+#define CHATWND_BUTTON_ID ((HMENU)5)
+
+LRESULT CALLBACK ChatWndProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
+{
+	static HWND hEditRDOnly;
+	static HWND hEditWRMsg;
+	static HWND hButton;
+	static HWND hStatic;
+	static HWND hLB;
+
+	static int sockfd;
+	static HINSTANCE hInstance;
+
+	switch(Msg)
+	{
+		case WM_CREATE:
+			sockfd = ((CREATESTRUCT*)lParam)->lpCreateParams;
+			hInstance = ((CREATESTRUCT*)lParam)->hInstance;
+
+			hEditRDOnly = CreateWindowEx(
+					0,
+					WC_EDIT,
+					"",
+					WS_CHILD|WS_VISIBLE|WS_BORDER|WS_THICKFRAME|ES_LEFT|ES_READONLY|ES_MULTILINE|ES_AUTOVSCROLL|WS_VSCROLL,
+					CHATWND_EDIT_RDONLY_X,
+					CHATWND_EDIT_RDONLY_Y,
+					CHATWND_EDIT_RDONLY_WIDTH,
+					CHATWND_EDIT_RDONLY_HEIGHT,
+					hWnd,
+					CHATWND_EDIT_RDONLY_ID,
+					hInstance,
+					NULL
+				);
+			hEditWRMsg = CreateWindowEx(
+					0,
+					WC_EDIT,
+					"",
+					WS_CHILD|WS_VISIBLE|WS_BORDER|ES_MULTILINE|ES_AUTOVSCROLL|WS_VSCROLL|ES_LEFT,
+					CHATWND_EDIT_WRMSG_X,
+					CHATWND_EDIT_WRMSG_Y,
+					CHATWND_EDIT_WRMSG_WIDTH,
+					CHATWND_EDIT_WRMSG_HEIGHT,
+					hWnd,
+					CHATWND_EDIT_WRMSG_ID,
+					hInstance,
+					NULL
+				);
+
+			hButton = CreateWindowEx(
+					0,
+					WC_BUTTON,
+					"Enviar",
+					WS_CHILD|WS_VISIBLE|BS_PUSHBUTTON|BS_CENTER|BS_VCENTER,
+					CHATWND_BUTTON_X,
+					CHATWND_BUTTON_Y,
+					CHATWND_BUTTON_WIDTH,
+					CHATWND_BUTTON_HEIGHT,
+					hWnd,
+					CHATWND_BUTTON_ID,
+					hInstance,
+					NULL
+				);
+
+			hStatic = CreateWindowEx(
+					0,
+					WC_STATIC,
+					"Lista de espera:",
+					WS_CHILD|WS_VISIBLE|SS_CENTER,
+					CHATWND_STATIC_X,
+					CHATWND_STATIC_Y,
+					CHATWND_STATIC_WIDTH,
+					CHATWND_STATIC_HEIGHT,
+					hWnd,
+					CHATWND_STATIC_ID,
+					hInstance,
+					NULL
+				);
+
+			hLB = CreateWindowEx(
+					0,
+					WC_LISTBOX,
+					"",
+					WS_CHILD|WS_VISIBLE|WS_VSCROLL|LBS_STANDARD,
+					CHATWND_LB_X,
+					CHATWND_LB_Y,
+					CHATWND_LB_HEIGHT,
+					CHATWND_LB_WIDTH,
+					hWnd,
+					CHATWND_LB_ID,
+					hInstance,
+					NULL
+				);
+			break;
+		case WM_DESTROY:
+			//close(sockfd);
+			PostQuitMessage(0);
+			return DefWindowProc(hWnd,Msg,wParam,lParam);
+		default:
+			return DefWindowProc(hWnd,Msg,wParam,lParam);
+	}
+	return 0;
+}
+
+void StartChat(int sockfd, const char* server_name, HINSTANCE hCurInstance)
+{
+	HWND hWnd;
+	MSG Msg;
+
+	hWnd = CreateWindowEx(
+			0,
+			"CHATWND",
+			server_name,
+			WS_OVERLAPPEDWINDOW|WS_VISIBLE|WS_MAXIMIZE,
+			CHATWND_X,
+			CHATWND_Y,
+			CHATWND_WIDTH,
+			CHATWND_HEIGHT,
+			HWND_DESKTOP,
+			NULL,
+			hCurInstance,
+			sockfd
+		);
+
+	printf("%zu,%zu",CHATWND_EDIT_RDONLY_HEIGHT);
+
+	while(GetMessage(&Msg,NULL,0,0) == TRUE)
+	{
+		TranslateMessage(&Msg);
+		DispatchMessage(&Msg);
+	}
 }
 
 #define MAINWND_STATIC_WIDTH 200
@@ -272,6 +439,7 @@ LRESULT CALLBACK MainWndProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
 					ShowWindow(hWnd,SW_RESTORE);
 
 					//Connect to the server
+					int sockfd;
 					ShowWindow(hButton,SW_HIDE);//Hide and then restore the ctrl so the progress bar is shown
 					ShowWindow(hComboBox,SW_HIDE);
 					{
@@ -303,6 +471,11 @@ LRESULT CALLBACK MainWndProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
 					Static_SetText(hStatic,"Ingrese el servidor:");//Restore the original text of the static
 					ShowWindow(hButton,SW_RESTORE);
 					ShowWindow(hComboBox,SW_RESTORE);
+
+					//Show ChatWnd
+					ShowWindow(hWnd,SW_HIDE);
+					StartChat(sockfd,addr,hInstance);
+					ShowWindow(hWnd,SW_RESTORE);
 
 					free(addr);
 				}
@@ -413,6 +586,9 @@ int WINAPI WinMain(HINSTANCE hCurInstance, HINSTANCE hPrevInstance, LPSTR lpszCm
 	HWND hWnd;
 	MSG Msg;
 
+	/*REGISTER WND CLASSES*/
+
+	//MainWnd
 	WndClass = (WNDCLASSEX){
 		.cbSize = sizeof(WNDCLASSEX),
 		.style = CS_HREDRAW|CS_VREDRAW,
@@ -427,8 +603,43 @@ int WINAPI WinMain(HINSTANCE hCurInstance, HINSTANCE hPrevInstance, LPSTR lpszCm
 		.lpszClassName="MAINWND",
 		.hIconSm = LoadIcon(NULL,IDI_APPLICATION)
 		};
-
 	RegisterClassEx(&WndClass);
+
+	//GetNameWnd
+	WndClass = (WNDCLASSEX){
+		.cbSize = sizeof(WNDCLASSEX),
+		.style = CS_HREDRAW|CS_VREDRAW,
+		.lpfnWndProc = GetNameWndProc,
+		.cbClsExtra = 0,
+		.cbWndExtra = 0,
+		.hInstance = hCurInstance,
+		.hIcon = LoadIcon(NULL,IDI_APPLICATION),
+		.hCursor = LoadCursor(NULL,IDC_ARROW),
+		.hbrBackground = GetSysColorBrush(COLOR_WINDOW),
+		.lpszMenuName=NULL,
+		.lpszClassName="GETNAMEWND",
+		.hIconSm = LoadIcon(NULL,IDI_APPLICATION)
+		};
+	RegisterClassEx(&WndClass);
+
+	//ChatWnd
+	WndClass = (WNDCLASSEX){
+		.cbSize = sizeof(WNDCLASSEX),
+		.style = CS_HREDRAW|CS_VREDRAW,
+		.lpfnWndProc = ChatWndProc,
+		.cbClsExtra = 0,
+		.cbWndExtra = 0,
+		.hInstance = hCurInstance,
+		.hIcon = LoadIcon(NULL,IDI_APPLICATION),
+		.hCursor = LoadCursor(NULL,IDC_ARROW),
+		.hbrBackground = GetSysColorBrush(COLOR_WINDOW),
+		.lpszMenuName=NULL,
+		.lpszClassName="CHATWND",
+		.hIconSm = LoadIcon(NULL,IDI_APPLICATION)
+		};
+	RegisterClassEx(&WndClass);
+
+	/*REGISTER WND CLASSES*/
 
 	hWnd = CreateWindowEx(
 			0,
