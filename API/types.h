@@ -2,14 +2,16 @@
 
 #include <stdint.h>
 
-typedef uint32_t packet_len_t;
+typedef char byte_t;
 
-typedef enum packet_intention{PI_MSG,PI_NEWMEMBER,PI_ACCEPTMEMBER,PI_END}packet_intention_t;
+typedef uint32_t portable_integer_t;
+
+typedef enum packet_intention{PI_MSG,PI_NEWMEMBER,PI_ACCEPTMEMBER}packet_intention_t;
 
 typedef struct
 {
 	packet_intention_t intention;
-	packet_len_t str_len;
+	portable_integer_t str_len;
 	char * str;
 }packet_t;
 

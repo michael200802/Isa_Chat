@@ -1,4 +1,4 @@
 compiler=gcc
 
 %: %.c
-	$(compiler) $? -o $@
+	$(compiler) -pthread $? -o $@
