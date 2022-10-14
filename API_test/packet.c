@@ -3,13 +3,16 @@
 #include "../API/packet.c"
 #include "../API/queue.c"
 
+#include "../config.h"
+
 #include <stdio.h>
 #include <unistd.h>
 
 #include <pthread.h>
 #include <semaphore.h>
 
-#define PORT 8082
+#define PORT ISACHAT_PORT
+#define BACKLOG ISACHAT_BACKLOG
 
 char ** str_arr;
 
@@ -17,12 +20,16 @@ void* server_routine(void* arg)
 {
 	sem_t * sem = arg;
 	int sockfd = socket(AF_INET,SOCK_STREAM,0);
-	struct sockaddr_in sockaddr = {.sin_family = AF_INET, .sin_port = htons(PORT), .sin_addr = {.s_addr = INADDR_ANY}};
+	struct sockaddr_in sockaddr = {
+		.sin_family = AF_INET,
+		.sin_port = htons(PORT),
+		.sin_addr.s_addr = INADDR_ANY
+	};
 	if(bind(sockfd,(struct sockaddr*)&sockaddr,sizeof(sockaddr)) == -1)
 	{
 		exit(-1);
 	}
-	if(listen(sockfd,100) == -1)
+	if(listen(sockfd,BACKLOG) == -1)
 	{
 		exit(-1);
 	}

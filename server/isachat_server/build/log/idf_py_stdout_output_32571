@@ -1,0 +1,65 @@
+[1/5] cd /home/MICHU_NEET/Programming/Projects/Isa_Chat/server/isachat_server/build/esp-idf/esptool_py && /home/MICHU_NEET/.espressif/python_env/idf5.1_py3.9_env/bin/python /home/MICHU_NEET/Programming/C-C++/espidf/esp-idf/components/partition_table/check_sizes.py --offset 0x8000 partition --type app /home/MICHU_NEET/Programming/Projects/Isa_Chat/server/isachat_server/build/partition_table/partition-table.bin /home/MICHU_NEET/Programming/Projects/Isa_Chat/server/isachat_server/build/isachat_server.bin
+isachat_server.bin binary size 0xad7b0 bytes. Smallest app partition is 0x100000 bytes. 0x52850 bytes (32%) free.
+[2/5] Performing build step for 'bootloader'
+[1/1] cd /home/MICHU_NEET/Programming/Projects/Isa_Chat/server/isachat_server/build/bootloader/esp-idf/esptool_py && /home/MICHU_NEET/.espressif/python_env/idf5.1_py3.9_env/bin/python /home/MICHU_NEET/Programming/C-C++/espidf/esp-idf/components/partition_table/check_sizes.py --offset 0x8000 bootloader 0x1000 /home/MICHU_NEET/Programming/Projects/Isa_Chat/server/isachat_server/build/bootloader/bootloader.bin
+Bootloader binary size 0x66d0 bytes. 0x930 bytes (8%) free.
+[2/3] cd /home/MICHU_NEET/Programming/C-C++/espidf/esp-idf/components/esptool_py && /usr/bin/cmake -D IDF_PATH=/home/MICHU_NEET/Programming/C-C++/espidf/esp-idf -D "SERIAL_TOOL=/home/MICHU_NEET/.espressif/python_env/idf5.1_py3.9_env/bin/python;;/home/MICHU_NEET/Programming/C-C++/espidf/esp-idf/components/esptool_py/esptool/esptool.py;--chip;esp32" -D "SERIAL_TOOL_ARGS=--before=default_reset;--after=hard_reset;write_flash;@flash_args" -D WORKING_DIRECTORY=/home/MICHU_NEET/Programming/Projects/Isa_Chat/server/isachat_server/build -P /home/MICHU_NEET/Programming/C-C++/espidf/esp-idf/components/esptool_py/run_serial_tool.cmake
+esptool esp32 -p /dev/ttyUSB0 -b 460800 --before=default_reset --after=hard_reset write_flash --flash_mode dio --flash_freq 40m --flash_size 2MB 0x1000 bootloader/bootloader.bin 0x10000 isachat_server.bin 0x8000 partition_table/partition-table.bin
+esptool.py v4.3
+Serial port /dev/ttyUSB0
+Connecting..........
+Chip is ESP32-D0WDQ6 (revision v1.0)
+Features: WiFi, BT, Dual Core, 240MHz, VRef calibration in efuse, Coding Scheme None
+Crystal is 40MHz
+MAC: 7c:9e:bd:66:84:58
+Uploading stub...
+Running stub...
+Stub running...
+Changing baud rate to 460800
+Changed.
+Configuring flash size...
+Flash will be erased from 0x00001000 to 0x00007fff...
+Flash will be erased from 0x00010000 to 0x000bdfff...
+Flash will be erased from 0x00008000 to 0x00008fff...
+Compressed 26320 bytes to 16381...
+Writing at 0x00001000... (100 %)
+Wrote 26320 bytes (16381 compressed) at 0x00001000 in 0.7 seconds (effective 288.1 kbit/s)...
+Hash of data verified.
+Compressed 710576 bytes to 457924...
+Writing at 0x00010000... (3 %)
+Writing at 0x0001a8c2... (7 %)
+Writing at 0x00022e25... (10 %)
+Writing at 0x000285c3... (14 %)
+Writing at 0x000322cd... (17 %)
+Writing at 0x00037b60... (21 %)
+Writing at 0x0003d5a7... (25 %)
+Writing at 0x00043458... (28 %)
+Writing at 0x00048c96... (32 %)
+Writing at 0x0004de16... (35 %)
+Writing at 0x0005325e... (39 %)
+Writing at 0x00058595... (42 %)
+Writing at 0x0005db2a... (46 %)
+Writing at 0x0006340c... (50 %)
+Writing at 0x00068f14... (53 %)
+Writing at 0x0006e78d... (57 %)
+Writing at 0x00073f97... (60 %)
+Writing at 0x000796ce... (64 %)
+Writing at 0x0007eedc... (67 %)
+Writing at 0x000849f8... (71 %)
+Writing at 0x0008ad27... (75 %)
+Writing at 0x00090789... (78 %)
+Writing at 0x00095fe4... (82 %)
+Writing at 0x0009f466... (85 %)
+Writing at 0x000a6fbe... (89 %)
+Writing at 0x000ad214... (92 %)
+Writing at 0x000b2c06... (96 %)
+Writing at 0x000b84bf... (100 %)
+Wrote 710576 bytes (457924 compressed) at 0x00010000 in 11.4 seconds (effective 500.6 kbit/s)...
+Hash of data verified.
+Compressed 3072 bytes to 103...
+Writing at 0x00008000... (100 %)
+Wrote 3072 bytes (103 compressed) at 0x00008000 in 0.0 seconds (effective 582.5 kbit/s)...
+Hash of data verified.
+
+Leaving...
+Hard resetting via RTS pin...

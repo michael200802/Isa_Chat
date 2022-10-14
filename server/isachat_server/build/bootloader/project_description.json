@@ -1,0 +1,23 @@
+{
+    "project_name":       "bootloader",
+    "project_path":       "/home/MICHU_NEET/Programming/C-C++/espidf/esp-idf/components/bootloader/subproject",
+    "build_dir":          "/home/MICHU_NEET/Programming/Projects/Isa_Chat/server/isachat_server/build/bootloader",
+    "config_file":        "/home/MICHU_NEET/Programming/Projects/Isa_Chat/server/isachat_server/sdkconfig",
+    "config_defaults":    "",
+    "bootloader_elf":     "",
+    "app_elf":            "bootloader.elf",
+    "app_bin":            "bootloader.bin",
+    "git_revision":       "v5.1-dev-1176-g6c5c595d6f-dirty",
+    "target":             "esp32",
+    "rev":                "0",
+    "phy_data_partition": "",
+    "monitor_baud" :      "115200",
+    "monitor_toolprefix": "xtensa-esp32-elf-",
+    "config_environment" : {
+        "COMPONENT_KCONFIGS" : "/home/MICHU_NEET/Programming/C-C++/espidf/esp-idf/components/efuse/Kconfig;/home/MICHU_NEET/Programming/C-C++/espidf/esp-idf/components/esp_common/Kconfig;/home/MICHU_NEET/Programming/C-C++/espidf/esp-idf/components/esp_hw_support/Kconfig;/home/MICHU_NEET/Programming/C-C++/espidf/esp-idf/components/esp_system/Kconfig;/home/MICHU_NEET/Programming/C-C++/espidf/esp-idf/components/freertos/Kconfig;/home/MICHU_NEET/Programming/C-C++/espidf/esp-idf/components/hal/Kconfig;/home/MICHU_NEET/Programming/C-C++/espidf/esp-idf/components/log/Kconfig;/home/MICHU_NEET/Programming/C-C++/espidf/esp-idf/components/newlib/Kconfig;/home/MICHU_NEET/Programming/C-C++/espidf/esp-idf/components/spi_flash/Kconfig",
+        "COMPONENT_KCONFIGS_PROJBUILD" : "/home/MICHU_NEET/Programming/C-C++/espidf/esp-idf/components/bootloader/Kconfig.projbuild;/home/MICHU_NEET/Programming/C-C++/espidf/esp-idf/components/esp_app_format/Kconfig.projbuild;/home/MICHU_NEET/Programming/C-C++/espidf/esp-idf/components/esp_rom/Kconfig.projbuild;/home/MICHU_NEET/Programming/C-C++/espidf/esp-idf/components/esptool_py/Kconfig.projbuild;/home/MICHU_NEET/Programming/C-C++/espidf/esp-idf/components/partition_table/Kconfig.projbuild"
+    },
+    "build_components" : [ "bootloader", "bootloader_support", "efuse", "esp_app_format", "esp_common", "esp_hw_support", "esp_rom", "esp_system", "esptool_py", "freertos", "hal", "log", "main", "micro-ecc", "newlib", "partition_table", "soc", "spi_flash", "xtensa", "" ],
+    "build_component_paths" : [ "/home/MICHU_NEET/Programming/C-C++/espidf/esp-idf/components/bootloader", "/home/MICHU_NEET/Programming/C-C++/espidf/esp-idf/components/bootloader_support", "/home/MICHU_NEET/Programming/C-C++/espidf/esp-idf/components/efuse", "/home/MICHU_NEET/Programming/C-C++/espidf/esp-idf/components/esp_app_format", "/home/MICHU_NEET/Programming/C-C++/espidf/esp-idf/components/esp_common", "/home/MICHU_NEET/Programming/C-C++/espidf/esp-idf/components/esp_hw_support", "/home/MICHU_NEET/Programming/C-C++/espidf/esp-idf/components/esp_rom", "/home/MICHU_NEET/Programming/C-C++/espidf/esp-idf/components/esp_system", "/home/MICHU_NEET/Programming/C-C++/espidf/esp-idf/components/esptool_py", "/home/MICHU_NEET/Programming/C-C++/espidf/esp-idf/components/freertos", "/home/MICHU_NEET/Programming/C-C++/espidf/esp-idf/components/hal", "/home/MICHU_NEET/Programming/C-C++/espidf/esp-idf/components/log", "/home/MICHU_NEET/Programming/C-C++/espidf/esp-idf/components/bootloader/subproject/main", "/home/MICHU_NEET/Programming/C-C++/espidf/esp-idf/components/bootloader/subproject/components/micro-ecc", "/home/MICHU_NEET/Programming/C-C++/espidf/esp-idf/components/newlib", "/home/MICHU_NEET/Programming/C-C++/espidf/esp-idf/components/partition_table", "/home/MICHU_NEET/Programming/C-C++/espidf/esp-idf/components/soc", "/home/MICHU_NEET/Programming/C-C++/espidf/esp-idf/components/spi_flash", "/home/MICHU_NEET/Programming/C-C++/espidf/esp-idf/components/xtensa", "" ],
+    "debug_prefix_map_gdbinit": ""
+}
